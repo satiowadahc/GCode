@@ -337,6 +337,11 @@ class Application(Frame):
         self.probe_pcodes  = StringVar()
         self.probe_soft    = StringVar()
 
+        self.skew_errorX   = StringVar()
+        self.skew_errorY   = StringVar()
+        self.skew_errorZ   = StringVar()
+
+
 
         self.current_input_file = StringVar()
          
@@ -413,6 +418,10 @@ class Application(Frame):
         self.probe_precodes.set("(G Code)")
         self.probe_pcodes.set("(G Code)")
         self.probe_soft.set("LinuxCNC") # "LinuxCNC", "MACH3" or "MACH4"
+
+        self.skew_errorX.set("0.0")
+        self.skew_errorY.set("0.0")
+        self.skew_errorZ.set("0.0")
 
         self.segID      = []
         self.gcode      = []
@@ -843,7 +852,30 @@ class Application(Frame):
         
         ############
 
-        ###
+        ### Skew ###
+
+        self.Label_Gcode_Skew_Properties = Label(self.master, text="G Code Skew:",
+                                                  anchor=W)
+        self.Label_SkewErrorX = Label(self.master, text="X Skew Error", anchor=CENTER)
+        self.Label_SkewErrorX_u = Label(self.master, textvariable=self.units, anchor=W)
+        self.Entry_SkewErrorX = Entry(self.master, width="15")
+        self.Entry_SkewErrorX.configure(textvariable=self.skew_errorX)
+        # self.Entry_SkewErrorX.bind('<Return>', self.Recalculate_Click)
+        # self.skew_errorX.trace_variable("w", self.Entry_SkewErrorX_Callback)
+
+        self.Label_SkewErrorY = Label(self.master, text="Y Skew Error", anchor=CENTER)
+        self.Label_SkewErrorY_u = Label(self.master, textvariable=self.units, anchor=W)
+        self.Entry_SkewErrorY = Entry(self.master, width="15")
+        self.Entry_SkewErrorY.configure(textvariable=self.skew_errorY)
+        # self.Entry_SkewErrorY.bind('<Return>', self.Recalculate_Click)
+        # self.skew_errorX.trace_variable("w", self.Entry_SkewErrorY_Callback)
+
+        self.Label_SkewErrorZ = Label(self.master, text="Z Skew Error", anchor=CENTER)
+        self.Label_SkewErrorZ_u = Label(self.master, textvariable=self.units, anchor=W)
+        self.Entry_SkewErrorZ = Entry(self.master, width="15")
+        self.Entry_SkewErrorZ.configure(textvariable=self.skew_errorZ)
+        # self.Entry_SkewErrorZ.bind('<Return>', self.Recalculate_Click)
+        # self.skew_errorX.trace_variable("w", self.Entry_SkewErrorZ_Callback)
 
         # End Right Column #
 
@@ -856,7 +888,7 @@ class Application(Frame):
         
 
         # Make Menu Bar
-        self.menuBar = Menu(self.master, relief = "raised", bd=2)
+        self.menuBar = Menu(self.master, relief="raised", bd=2)
         
         self.top_File = Menu(self.menuBar, tearoff=0)
         self.top_File.add("command", label = "Open G-Code File", \
@@ -2550,7 +2582,6 @@ class Application(Frame):
                 self.separator4.place(x=x_label_R, y=Yloc,width=w_label+75+40, height=2)
                 Yloc=Yloc+6
 
-
             elif self.gcode_op.get() == "wrap":
                 self.Label_Gcode_Wrap_Properties.place(  x=x_label_R, y=Yloc, width=w_label*2, height=21)
                 Yloc=Yloc+24
@@ -2598,7 +2629,6 @@ class Application(Frame):
                 
                 Yloc=Yloc+24+7
                 self.WriteExportButton.place(x=x_label_R, y=Yloc, width=95*2, height=30)
-
 
             elif self.gcode_op.get() == "probe":
                 self.Label_Gcode_Probe_Properties.place(x=x_label_R, y=Yloc, width=w_label*2, height=21)
@@ -2722,6 +2752,25 @@ class Application(Frame):
                     self.WriteAdjustedButton.configure(state="normal")
                     self.ClearProbeButton.configure(state="normal")
                     self.Label_ProbeSafe.configure(state="normal")
+
+            elif self.gcode_op.get() == "skew":
+                self.Label_Gcode_Skew_Properties.place(x=x_label_R, y=Yloc, width=w_label * 2, height=21)
+
+                Yloc = Yloc + 24
+                self.Label_SkewErrorX.place(x=x_label_R, y=Yloc, width=w_label, height=21)
+                self.Label_SkewErrorX_u.place(x=x_units_R, y=Yloc, width=w_units, height=21)
+                self.Entry_SkewErrorX.place(x=x_entry_R, y=Yloc, width=w_entry, height=23)
+
+                Yloc = Yloc + 24
+                self.Label_SkewErrorY.place(x=x_label_R, y=Yloc, width=w_label, height=21)
+                self.Label_SkewErrorY_u.place(x=x_units_R, y=Yloc, width=w_units, height=21)
+                self.Entry_SkewErrorY.place(x=x_entry_R, y=Yloc, width=w_entry, height=23)
+
+                Yloc = Yloc + 24
+                self.Label_SkewErrorZ.place(x=x_label_R, y=Yloc, width=w_label, height=21)
+                self.Label_SkewErrorZ_u.place(x=x_units_R, y=Yloc, width=w_units, height=21)
+                self.Entry_SkewErrorZ.place(x=x_entry_R, y=Yloc, width=w_entry, height=23)
+
             ###########################################################
             if Plot_Flag:
                 self.Plot_Data()
