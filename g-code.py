@@ -3,6 +3,8 @@
     g-code_ripper G-Code-Ripper
     
     Copyright (C) <2013-2019>  <Scorch>
+    Modified By Chad A. Woitas for RMD Engineering Nov 2019
+
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
@@ -68,6 +70,8 @@
                  
     Version 0.17 - Fixed low travel speed problem with rotary conversion
                  - Updated icon
+
+    Version 0.18 - Adding Skewing Features
 """
 version = '0.17'
 
@@ -339,9 +343,6 @@ class Application(Frame):
 
         self.skew_errorX   = StringVar()
         self.skew_errorY   = StringVar()
-        self.skew_errorZ   = StringVar()
-
-
 
         self.current_input_file = StringVar()
          
@@ -421,7 +422,6 @@ class Application(Frame):
 
         self.skew_errorX.set("0.0")
         self.skew_errorY.set("0.0")
-        self.skew_errorZ.set("0.0")
 
         self.segID      = []
         self.gcode      = []
@@ -870,12 +870,8 @@ class Application(Frame):
         # self.Entry_SkewErrorY.bind('<Return>', self.Recalculate_Click)
         # self.skew_errorX.trace_variable("w", self.Entry_SkewErrorY_Callback)
 
-        self.Label_SkewErrorZ = Label(self.master, text="Z Skew Error", anchor=CENTER)
-        self.Label_SkewErrorZ_u = Label(self.master, textvariable=self.units, anchor=W)
-        self.Entry_SkewErrorZ = Entry(self.master, width="15")
-        self.Entry_SkewErrorZ.configure(textvariable=self.skew_errorZ)
-        # self.Entry_SkewErrorZ.bind('<Return>', self.Recalculate_Click)
-        # self.skew_errorX.trace_variable("w", self.Entry_SkewErrorZ_Callback)
+        self.SkewButton = Button(self.master, text="Skew",
+                                 command=self.menu_Skew)
 
         # End Right Column #
 
@@ -2288,6 +2284,9 @@ class Application(Frame):
     def menu_Help_Web(self):
         webbrowser.open_new(r"http://www.scorchworks.com/Gcoderipper/g_code_ripper_doc.html")
 
+    def menu_Skew(self):
+        self.DoIt()
+
     def KEY_F1(self, event):
         self.menu_Help_About()
 
@@ -2508,7 +2507,16 @@ class Application(Frame):
             self.ClearProbeButton.place_forget()
             self.WriteAdjustedButton.place_forget()
             self.WriteProbeButton.place_forget()
-            
+
+            ### Skew ###
+
+            self.Label_Gcode_Skew_Properties.place_forget()
+            self.Label_SkewErrorX.place_forget()
+            self.Label_SkewErrorX_u.place_forget()
+            self.Label_SkewErrorY.place_forget()
+            self.Label_SkewErrorY_u.place_forget()
+            self.Entry_SkewErrorX.place_forget()
+            self.Entry_SkewErrorY.place_forget()
 
             # Buttons/Canvas.
             Ybut=self.h-60
@@ -2766,10 +2774,8 @@ class Application(Frame):
                 self.Label_SkewErrorY_u.place(x=x_units_R, y=Yloc, width=w_units, height=21)
                 self.Entry_SkewErrorY.place(x=x_entry_R, y=Yloc, width=w_entry, height=23)
 
-                Yloc = Yloc + 24
-                self.Label_SkewErrorZ.place(x=x_label_R, y=Yloc, width=w_label, height=21)
-                self.Label_SkewErrorZ_u.place(x=x_units_R, y=Yloc, width=w_units, height=21)
-                self.Entry_SkewErrorZ.place(x=x_entry_R, y=Yloc, width=w_entry, height=23)
+                Yloc = Yloc + 24 + 7
+                self.SkewButton.place(x=x_label_R, y=Yloc, width=95 * 2, height=30)
 
             ###########################################################
             if Plot_Flag:
@@ -3174,7 +3180,7 @@ class Application(Frame):
             return
         if (self.Check_All_Variables() > 0):
             return
-        self.statusbar.configure( bg = 'yellow' )
+        self.statusbar.configure( bg = 'black' )
         self.statusMessage.set(" Calculating.........")
         self.master.update_idletasks()
 
@@ -3200,6 +3206,9 @@ class Application(Frame):
             probe_nX     = int(float((self.probe_nX.get())))
             probe_nY     = int(float((self.probe_nY.get())))
             probe_istep  = float(self.probe_istep.get())
+
+            skew_x       = float(self.skew_errorX.get())
+            skew_y       = float(self.skew_errorY.get())
         except:
             self.statusMessage.set(" Unable to create paths.  Check Settings Entry Values.")
             self.statusbar.configure( bg = 'red' )
@@ -3373,7 +3382,9 @@ class Application(Frame):
                     self.coords.append([xp-Lpt, yp    , zp, xp+Lpt, yp    , zp, 2, 1 ])
                     self.coords.append([xp    , yp+Lpt, zp, xp    , yp-Lpt, zp, 2, 1 ])
                     self.coords.append([xp    , yp    ,  0, xp    , yp    , zp, 2, 1 ])
-            
+
+        elif self.gcode_op.get() == "skew":
+            pass
         else:
             for line in self.g_rip.scaled_trans:
                 if line[0] == 3 or line[0] == 2 or line[0] == 1:
