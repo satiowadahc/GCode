@@ -136,7 +136,7 @@ class Skew():
             iOff = gString.find('I')
             jOff = gString.find('J')
             Center = (Xstart + iOff, Ystart + jOff)
-            radius = self.point2PointDistance(prevPos,Center)
+            radius = self.point2PointDistance(prevPos, Center)
         elif gString.startsWith('3'):
             gString = gString.replace('2', '')
             Xstart, Ystart = prevPos
